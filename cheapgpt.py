@@ -2,7 +2,6 @@ import openai
 import tiktoken
 from rich.console import Console
 from rich.markdown import Markdown
-import readline
 import sys
 
 openai.organization = "org-QoDeyx1e44qC6UefQo7tgnCl"
@@ -44,7 +43,7 @@ def multiline_input(console: Console) -> str:
 
 
 if __name__ == "__main__":
-    readline.parse_and_bind("set editing-mode vi")
+    # readline.parse_and_bind("set editing-mode vi")
     messages = [{"role": "system", "content": "You are a helpful assistant."}]
     console = Console()
     while True:
