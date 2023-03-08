@@ -9,6 +9,13 @@ openai.api_key_path = "API_KEY"
 
 max_tokens = 4096 - 200  # 4096 is the max, but our token count is off by a bit.
 
+expansions = {
+    "rw": "Rewrite the following to be more concise and less wordy. Aim for clarity.\n\n",
+    "conf": "When answering the following question, annotate all statements with a confidence score from 0 to 10. 0 "
+            "means you are completely unsure, 10 means you are completely sure. Please be honest and think step by step.\n\n",
+    "sbs": "Think step by step.",
+    "clear": "Clear the chat history.",
+}
 
 def truncate_messages(messages):
     encoding = tiktoken.get_encoding("cl100k_base")
@@ -49,12 +56,26 @@ def multiline_input(console: Console) -> str:
     return text
 
 
+def expand_magic_strings(s: str) -> str:
+    for key, value in expansions.items():
+        s = s.replace(f"%{key}%", value)
+    return s
+
+
 if __name__ == "__main__":
     # readline.parse_and_bind("set editing-mode vi")
     messages = [{"role": "system", "content": "You are a helpful assistant."}]
     console = Console()
     while True:
         prompt = multiline_input(console)
+        if prompt == "%":
+            for key, value in expansions.items():
+                console.print(f"%{key}%: {repr(value)}")
+            continue
+        if prompt == "%clear%":
+            messages = [{"role": "system", "content": "You are a helpful assistant."}]
+            continue
+        prompt = expand_magic_strings(prompt)
         messages.append({"role": "user", "content": prompt})
         messages, total_tokens = truncate_messages(messages)
         status_msg = f"Sending {total_tokens} tokens..."
