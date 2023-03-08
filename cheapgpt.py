@@ -7,19 +7,26 @@ import sys
 openai.organization = "org-QoDeyx1e44qC6UefQo7tgnCl"
 openai.api_key_path = "API_KEY"
 
-max_tokens = 4096
+max_tokens = 4096 - 200  # 4096 is the max, but our token count is off by a bit.
 
 
 def truncate_messages(messages):
     encoding = tiktoken.get_encoding("cl100k_base")
     total_tokens = 0
     messages_trunc = []
+    # https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
     for m in reversed(messages):
-        total_tokens += len(encoding.encode(m["content"]))
-        if total_tokens > max_tokens:
+        this_message = 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
+        for key, value in m.items():
+            this_message += len(encoding.encode(value))
+            if key == "name":  # if there's a name, the role is omitted
+                this_message += -1  # role is always required and always 1 token
+
+        if total_tokens + this_message > max_tokens:
             break
+        total_tokens += this_message
         messages_trunc.append(m)
-    return list(reversed(messages_trunc))
+    return list(reversed(messages_trunc)), total_tokens
 
 
 def three_same(s: str) -> bool:
@@ -48,18 +55,19 @@ if __name__ == "__main__":
     console = Console()
     while True:
         prompt = multiline_input(console)
-        sys.stdout.write("Sending...")
-        sys.stdout.flush()
         messages.append({"role": "user", "content": prompt})
-        messages = truncate_messages(messages)
+        messages, total_tokens = truncate_messages(messages)
+        status_msg = f"Sending {total_tokens} tokens..."
+        sys.stdout.write(status_msg)
+        sys.stdout.flush()
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=messages
         )
-        sys.stdout.write("\b" * len("Sending..."))
-        sys.stdout.write(" " * len("Sending..."))
+        sys.stdout.write("\b" * len(status_msg))
+        sys.stdout.write(" " * len(status_msg))
         sys.stdout.flush()
-        msg = response["choices"][0]["message"]
+        msg = response["choices"][0]["message"].to_dict()
         messages.append(msg)
 
         rendered = Markdown(msg["content"])
