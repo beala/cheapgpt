@@ -20,6 +20,7 @@ expansions = {
             "step.\n\n",
     "sbs": "Think step by step.",
     "clear": "Clear the chat history.",
+    "rm": "Remove the last exchange from the history",
 }
 
 def truncate_messages(messages):
@@ -89,6 +90,14 @@ if __name__ == "__main__":
             continue
         if prompt == "%clear%":
             messages = [SYSTEM_MESSAGE]
+            continue
+        if prompt == "%rm%":
+            # If there has been at least one exchange, there should be at least 3 messages.
+            # The system message, plus the user message, plus the assistant response.
+            if len(messages) >= 3:
+                messages = messages[:-2]
+            else:
+                console.print("Nothing to remove.")
             continue
 
         prompt = expand_magic_strings(prompt)
