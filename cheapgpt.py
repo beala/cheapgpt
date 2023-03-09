@@ -1,3 +1,5 @@
+from typing import Callable
+
 import openai
 import tiktoken
 from rich.console import Console
@@ -65,6 +67,16 @@ def expand_magic_strings(s: str) -> str:
     return s
 
 
+def print_temporary(msg: str) -> Callable:
+    sys.stdout.write(msg)
+    sys.stdout.flush()
+    def erase():
+        sys.stdout.write("\b" * len(msg))
+        sys.stdout.write(" " * len(msg))
+        sys.stdout.flush()
+    return erase
+
+
 if __name__ == "__main__":
     # readline.parse_and_bind("set editing-mode vi")
     messages = [SYSTEM_MESSAGE]
@@ -78,19 +90,16 @@ if __name__ == "__main__":
         if prompt == "%clear%":
             messages = [SYSTEM_MESSAGE]
             continue
+
         prompt = expand_magic_strings(prompt)
         messages.append({"role": "user", "content": prompt})
         messages, total_tokens = truncate_messages(messages)
-        status_msg = f"Sending {total_tokens} tokens..."
-        sys.stdout.write(status_msg)
-        sys.stdout.flush()
+        erase = print_temporary(f"Sending {total_tokens} tokens...")
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=messages
         )
-        sys.stdout.write("\b" * len(status_msg))
-        sys.stdout.write(" " * len(status_msg))
-        sys.stdout.flush()
+        erase()
         msg = response["choices"][0]["message"].to_dict()
         messages.append(msg)
 
