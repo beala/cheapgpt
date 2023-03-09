@@ -7,7 +7,7 @@ import sys
 openai.organization = "org-QoDeyx1e44qC6UefQo7tgnCl"
 openai.api_key_path = "API_KEY"
 
-max_tokens = 4096 - 200  # 4096 is the max, but our token count is off by a bit.
+max_tokens = 4096 - 100  # 4096 is the max, but our token count is off by a bit.
 
 SYSTEM_MESSAGE = {"role": "system", "content": "You are a helpful assistant."}
 
