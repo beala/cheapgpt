@@ -65,7 +65,7 @@ def expand_magic_strings(s: str) -> str:
 if __name__ == "__main__":
     # readline.parse_and_bind("set editing-mode vi")
     messages = [{"role": "system", "content": "You are a helpful assistant."}]
-    console = Console()
+    console = Console(soft_wrap=True)
     while True:
         prompt = multiline_input(console)
         if prompt == "%":
