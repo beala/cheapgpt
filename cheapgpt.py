@@ -14,7 +14,8 @@ SYSTEM_MESSAGE = {"role": "system", "content": "You are a helpful assistant."}
 expansions = {
     "rw": "Rewrite the following to be more concise and less wordy. Aim for clarity.\n\n",
     "conf": "When answering the following question, annotate all statements with a confidence score from 0 to 10. 0 "
-            "means you are completely unsure, 10 means you are completely sure. Please be honest and think step by step.\n\n",
+            "means you are completely unsure, 10 means you are completely sure. Please be honest and think step by "
+            "step.\n\n",
     "sbs": "Think step by step.",
     "clear": "Clear the chat history.",
 }
