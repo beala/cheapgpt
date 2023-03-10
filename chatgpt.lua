@@ -33,10 +33,16 @@ function getSelectedText()
     end
 end
 
+ function trim(s)
+   return s:gsub("^%s*(.-)%s*$", "%1")
+ end
+
 -- Invoke API on key binding
 hs.hotkey.bind({ "cmd" }, "f1", function()
-    local text = getSelectedText()
-    if text then
+    local text = trim(getSelectedText())
+    if text and string.len(text) > 0 then
+        print("\"" .. text .. "\"")
+        print(string.len(text) > 0)
         chatGpt(prompt .. text, getKey(),function(_, body, _)
             hs.eventtap.keyStroke({}, "delete")
             hs.eventtap.keyStrokes(hs.json.decode(body)["choices"][1]["message"]["content"])
