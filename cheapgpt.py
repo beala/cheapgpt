@@ -21,6 +21,7 @@ expansions = {
     "sbs": "Think step by step.",
     "clear": "Clear the chat history.",
     "rm": "Remove the last exchange from the history",
+    "retry": "Query the API again."
 }
 
 def truncate_messages(messages):
@@ -88,10 +89,10 @@ if __name__ == "__main__":
             for key, value in expansions.items():
                 console.print(f"%{key}%: {repr(value)}")
             continue
-        if prompt == "%clear%":
+        elif prompt == "%clear%":
             messages = [SYSTEM_MESSAGE]
             continue
-        if prompt == "%rm%":
+        elif prompt == "%rm%":
             # If there has been at least one exchange, there should be at least 3 messages.
             # The system message, plus the user message, plus the assistant response.
             if len(messages) >= 3:
@@ -99,16 +100,23 @@ if __name__ == "__main__":
             else:
                 console.print("Nothing to remove.")
             continue
+        elif prompt == "%retry":
+            pass
+        else:
+            prompt = expand_magic_strings(prompt)
+            messages.append({"role": "user", "content": prompt})
+            messages, total_tokens = truncate_messages(messages)
 
-        prompt = expand_magic_strings(prompt)
-        messages.append({"role": "user", "content": prompt})
-        messages, total_tokens = truncate_messages(messages)
-        erase = print_temporary(f"Sending {total_tokens} tokens...")
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=messages
-        )
-        erase()
+        try:
+            erase = print_temporary(f"Sending {total_tokens} tokens...")
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=messages
+            )
+            erase()
+        except openai.error.APIConnectionError as e:
+            console.print("Failed.", e)
+            continue
         msg = response["choices"][0]["message"].to_dict()
         messages.append(msg)
 
