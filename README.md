@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 Create a file called `API_KEY` with your API key in it.
 ```shell
-echo your_key_goes_here > API_KEY
+echo your_key_goes_here > ~/.openai_key
 ```
 
 In `cheapgpt.py`, set `openai.organization` to your organization ID.

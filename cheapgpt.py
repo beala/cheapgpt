@@ -4,10 +4,11 @@ import openai
 import tiktoken
 from rich.console import Console
 from rich.markdown import Markdown
+from os.path import expanduser
 import sys
 
 openai.organization = "org-QoDeyx1e44qC6UefQo7tgnCl"
-openai.api_key_path = "API_KEY"
+openai.api_key_path = expanduser("~")  + "/.openai_key"
 
 max_tokens = 4096 - 100  # 4096 is the max, but our token count is off by a bit.
 
